@@ -29,7 +29,7 @@ class GameTable:
             for j in range(len(self.coordinates[i])):
                 h += self.size_h / 7
                 self.coordinates[i][j] = (int(h), int(v))
-        # self.turn field stores players' turn (1 for player 1, 2 for player 2 and -1 when the game ends)
+        # self.turn field stores players' turn (1 for player1, 2 for player2 and -1 when someone wins, -2 when its tie)
         self.turn = 1
         # coordinates of game chip
         self.playing_coord_ver = 65
@@ -43,11 +43,20 @@ class GameTable:
         for i in range(len(self.dots_data)):
             for j in range(len(self.dots_data[i])):
                 if self.dots_data[i][j] == 0:
+                    # playing cell is empty
                     pygame.draw.circle(screen, BLACK, self.coordinates[i][j], self.radius)
                 elif self.dots_data[i][j] == 1:
+                    # chip of player 1 in playing cell
                     pygame.draw.circle(screen, RED, self.coordinates[i][j], self.radius)
                 elif self.dots_data[i][j] == 2:
+                    # chip of player 2 in playing cell
                     pygame.draw.circle(screen, BLUE, self.coordinates[i][j], self.radius)
+
+        # if game table is filled and no one won, it's tie
+        if self.dots_data[0].count(0) == 0:
+            self.turn = -2
+            return
+
         if self.turn == 1:
             pygame.draw.circle(screen, RED, (self.playing_coord_hor, self.playing_coord_ver), self.radius)
         elif self.turn == 2:
@@ -57,6 +66,7 @@ class GameTable:
     def move(self, direction):
         """Function for event of pressing left or right buttons.
         Moves game chip on horizontal axis"""
+
         if direction == "left" and self.playing_coord_hor > MARGIN_HOR + int(self.size_h / 7):
             self.playing_coord_hor -= int(self.size_h / 7)
         elif direction == "right" and self.playing_coord_hor < MARGIN_HOR + int(self.size_h / 7) * 6:
@@ -65,20 +75,30 @@ class GameTable:
     def fall(self):
         """Function for event of pressing down or return buttons.
         Drops game chip into playing board"""
+
+        # horizontal and vertical index
         ind_h = int((self.playing_coord_hor - MARGIN_HOR) / (self.size_h / 7)) - 1
         ind_v = 0
+
+        # you can't place game chip when column is filled
         if self.dots_data[ind_v][ind_h] != 0:
             return
+        # filling chips from bottom
         while self.dots_data[ind_v][ind_h] == 0:
             ind_v += 1
             if ind_v == 6:
                 break
+
+        # filling playing cell with chip of each player (1 for player1, 2 for player2)
         self.dots_data[ind_v - 1][ind_h] = self.turn
+
+        # checking if four chips are standing in a row or in a column or on a diagonal
         if self.is_covered():
             # game ends
             self.winner = self.turn
             self.turn = -1
             return
+        # changing player's turn
         self.turn = 1 if self.turn == 2 else 2
 
     def is_covered(self):
@@ -155,7 +175,10 @@ class End:
         self.surface.fill(WHITE)
         self.surface.set_alpha(220)
 
-    def end(self, game_table):
-        final_word = FONT.render(f"P l a y e r   {game_table.winner}   w i n s", 1, BLACK)
+    def end(self, game_table, result="victory"):
+        if result == "victory":
+            final_word = FONT.render(f"P l a y e r   {game_table.winner}   w i n s", 1, BLACK)
+        else:
+            final_word = FONT.render(f"F r i e n d s h i p   w i n s", 1, BLACK)
         self.screen.blit(self.surface, (200, 270))
         self.surface.blit(final_word, (50, 30))

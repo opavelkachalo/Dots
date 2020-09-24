@@ -30,6 +30,8 @@ def main():
 
         if gameTable.turn == -1:
             gameEnd.end(gameTable)
+        elif gameTable.turn == -2:
+            gameEnd.end(gameTable, result="tie")
 
         for i in pygame.event.get():
             if i.type == pygame.QUIT:
