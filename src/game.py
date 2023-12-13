@@ -9,7 +9,7 @@ BLUE = (0, 0, 255)
 LIGHT_YELLOW = (255, 255, 204)
 MARGIN_HOR = 105
 MARGIN_VER = 100
-FONT = pygame.font.Font(r"src\resources\fonts\Ranchers-Regular.ttf", 30)
+FONT = pygame.font.Font("src/resources/fonts/Ranchers-Regular.ttf", 30)
 
 
 class GameTable:
